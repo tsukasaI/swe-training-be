@@ -1,38 +1,24 @@
-openapi: 3.1.0
+openapi: 3.0.0
 info:
   title: swe-training
   version: '1.0'
-  summary: SNS App
   description: swe-training
-  contact:
-    name: '-'
-    email: '-'
-    url: '-'
-  license:
-    name: '-'
-    url: 'http://localhost:3003'
-servers:
-  - url: 'http://localhost:3003'
-    description: be
 paths:
   '/admin/user/{userId}':
     parameters:
       - schema:
-          type: string
+          type: integer
+          format: int64
         name: userId
         in: path
+        description: An existing user id.
         required: true
-        description: userId
     patch:
       summary: Update User Information For Admin
       operationId: patch-admin-users-userId
       responses:
         '200':
-          description: ''
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+          description: OK
         '404':
           description: User Not Found
         '409':
@@ -65,25 +51,27 @@ paths:
                   name: 田中三郎
                   email: SS@dd.com
                   password: string
-        description: Patch user properties to update.
+        description: ''
       tags:
         - admin
     delete:
-      summary: ''
+      summary: Delete User Information For Admin
       operationId: delete-admin-user-userId
       responses:
         '200':
-          description: Deleted user.
+          description: OK
         '404':
-          description: Not Found
+          description: User Not Found
       description: Delete an existing user.
+      tags:
+        - admin
   /admin/user:
     post:
       summary: Create New User
       operationId: post-admin-user
       responses:
         '200':
-          description: User Created
+          description: OK
           content:
             application/json:
               schema:
@@ -96,20 +84,10 @@ paths:
                     email: aaa@bbb.com
                     updatedAt: 2022/05/09/13/22/32
                     createdAt: 2022/05/09/13/22/32
-                    posts:
-                      - id: 0
-                        comment: おはようございます。
-                        updatedAt: 2022/05/09/13/22/32
-                        createdAT: 2022/05/09/13/22/32
-                        writer: {}
-                    followers:
-                      - {}
-                    follows:
-                      - {}
         '400':
           description: Bad Request
         '409':
-          description: Email Conflict
+          description: Email Already Taken
       requestBody:
         content:
           application/json:
@@ -137,8 +115,10 @@ paths:
                   userName: 田中二郎
                   email: DD@SS.com
                   password: string
-        description: Post the necessary fields for the API to create a new user.
+        description: ''
       description: Create a new user.
+      tags:
+        - admin
     get:
       summary: Get All Users For Admin
       operationId: get-admin-user
@@ -160,23 +140,6 @@ paths:
                       email: aaa@bbb.com
                       updatedAt: 2022/05/09/13/22/32
                       createdAt: 2022/05/09/13/22/32
-                example-2:
-                  value:
-                    - id: 0
-                      name: 田中一郎
-                      email: aaa@bbb.com
-                      updatedAt: 2022/05/09/13/22/32
-                      createdAt: 2022/05/09/13/22/32
-                      posts:
-                        - id: 0
-                          comment: おはようございます。
-                          updatedAt: 2022/05/09/13/22/32
-                          createdAT: 2022/05/09/13/22/32
-                          writer: {}
-                      followers:
-                        - {}
-                      follows:
-                        - {}
             application/xml:
               schema:
                 type: array
@@ -195,7 +158,7 @@ paths:
         - user
       responses:
         '200':
-          description: Get all users.
+          description: OK
           content:
             application/json:
               schema:
@@ -212,60 +175,75 @@ paths:
                       createdAt: 2022/05/09/13/22/32
                       isFollowing: false
                       followersCount: 0
+        '404':
+          description: User Not Found
       operationId: get-user
       description: Get all users.
       parameters:
         - schema:
             type: integer
+            format: int64
           in: query
           name: userId
-          description: user id
+          description: An existing user id.
+          required: true
   '/follow/{targetId}':
     parameters:
       - schema:
-          type: string
+          type: integer
+          format: int64
         name: targetId
         in: path
         required: true
-        description: targetId
+        description: An existing user id excluding user own id.
     put:
       summary: Update Following
       operationId: put-follow-targetId
       responses:
         '200':
-          description: Updated following.
+          description: OK
         '404':
-          description: Not found user.
+          description: User Not Found
+        '409':
+          description: Duplicated Following
       description: Update following.
       parameters:
         - schema:
             type: integer
+            format: int64
           in: query
           name: userId
-          description: user id
+          description: An existing user id.
+          required: true
       tags:
         - user
     delete:
-      summary: ''
+      summary: Delete Following
       operationId: delete-follow-targetId
       responses:
         '200':
-          description: Deleted following.
+          description: OK
         '404':
-          description: Not found user.
+          description: User Not Found
+        '409':
+          description: Not Existing Following
       description: Delete following.
       parameters:
         - schema:
             type: integer
+            format: int64
           in: query
           name: userId
-          description: user id
+          description: An existing user id.
+          required: true
+      tags:
+        - user
   /post:
     get:
-      summary: post
+      summary: Get Owned Posts
       responses:
         '200':
-          description: Get owned post.
+          description: OK
           content:
             application/json:
               schema:
@@ -288,24 +266,26 @@ paths:
         '404':
           description: Not Found User.
       operationId: get-post
-      description: Get owned post
+      description: Get owned post.
       parameters:
         - schema:
             type: integer
+            format: int64
           in: query
           name: userId
-          description: user id
+          description: An existing user id.
+          required: true
       tags:
         - post
     post:
-      summary: ''
+      summary: Create New Post
       operationId: post-post
       responses:
         '200':
-          description: Posted.
+          description: OK
         '400':
-          description: Too Long Comment.
-      description: Create post.
+          description: Too Long Comment
+      description: Create New Post.
       requestBody:
         content:
           application/json:
@@ -322,24 +302,27 @@ paths:
               required:
                 - comment
                 - userId
+      tags:
+        - post
   '/post/{postId}':
     parameters:
       - schema:
-          type: string
+          type: integer
+          format: int64
         name: postId
         in: path
         required: true
-        description: postId
+        description: An existing post id.
     patch:
-      summary: ''
+      summary: Update Post
       operationId: patch-post-postId
       responses:
         '200':
-          description: Updated post.
+          description: OK
         '400':
-          description: Too Long Comment.
+          description: Too Long Comment
         '404':
-          description: Not Found Post
+          description: Post Not Found
       description: Update post.
       requestBody:
         content:
@@ -351,23 +334,27 @@ paths:
                   type: string
                   maxLength: 200
                   example: 投稿修正致しました。
+              required:
+                - comment
       tags:
         - post
     delete:
-      summary: ''
+      summary: Delete Post
       operationId: delete-post-postId
       responses:
         '200':
-          description: Deleted Post
+          description: OK
         '404':
-          description: Not Found Post
+          description: Post Not Found
       description: Delete post.
+      tags:
+        - post
   /post/home:
     get:
-      summary: home post
+      summary: Get Posts For Home
       responses:
         '200':
-          description: 'Get post(owned, follows)'
+          description: OK
           content:
             application/json:
               schema:
@@ -389,15 +376,17 @@ paths:
                         updatedAt: 2022/05/09/13/22/32
                         createdAt: 2022/05/09/13/22/32
         '404':
-          description: Not Found User
+          description: User Not Found
       operationId: get-post-home
-      description: 'Get post(owned, follows)'
+      description: Get posts for home.
       parameters:
         - schema:
             type: integer
+            format: int64
           in: query
           name: userId
-          description: user id
+          description: An existing user id.
+          required: true
       tags:
         - home
 components:
@@ -406,7 +395,24 @@ components:
       type: object
       title: User
       description: SNS User
-      examples: []
+      example:
+        - id: 0
+          name: 田中一郎
+          email: aaa@bbb.com
+          updatedAt: 2022/05/09/13/22/32
+          createdAt: 2022/05/09/13/22/32
+          posts:
+            - id: 0
+              comment: おはようございます。
+              updatedAt: 2022/05/09/13/22/32
+              createdAT: 2022/05/09/13/22/32
+              writer: {}
+          followers:
+            - {}
+          follows:
+            - {}
+          isFollowing: false
+          followersCount: 0
       properties:
         id:
           type: integer
@@ -456,8 +462,6 @@ components:
         - createdAt
     Post:
       title: Post
-      x-stoplight:
-        id: hw2jvfh00l0es
       type: object
       description: post
       properties:
@@ -486,7 +490,7 @@ components:
         - updatedAt
         - createdAt
         - writer
-      examples:
+      example:
         - id: 0
           comment: おはようございます。
           updatedAt: 2022/05/09/13/22/32
