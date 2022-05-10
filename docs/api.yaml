@@ -1,0 +1,521 @@
+openapi: 3.1.0
+info:
+  title: swe-training
+  version: '1.0'
+  summary: SNS App
+  description: swe-training
+  contact:
+    name: '-'
+    email: '-'
+    url: '-'
+  license:
+    name: '-'
+    url: 'http://localhost:3003'
+servers:
+  - url: 'http://localhost:3003'
+    description: be
+paths:
+  '/admin/user/{userId}':
+    parameters:
+      - schema:
+          type: string
+        name: userId
+        in: path
+        required: true
+        description: userId
+    patch:
+      summary: Update User Information For Admin
+      operationId: patch-admin-users-userId
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User Not Found
+        '409':
+          description: Email Already Taken
+      description: Update the information of an existing user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 田中三郎
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                  maxLength: 100
+                  example: SS@dd.com
+                password:
+                  type: string
+              required:
+                - name
+                - email
+                - password
+            examples:
+              example-1:
+                value:
+                  name: 田中三郎
+                  email: SS@dd.com
+                  password: string
+        description: Patch user properties to update.
+      tags:
+        - admin
+    delete:
+      summary: ''
+      operationId: delete-admin-user-userId
+      responses:
+        '200':
+          description: Deleted user.
+        '404':
+          description: Not Found
+      description: Delete an existing user.
+  /admin/user:
+    post:
+      summary: Create New User
+      operationId: post-admin-user
+      responses:
+        '200':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                example-1:
+                  value:
+                    id: 0
+                    name: 田中一郎
+                    email: aaa@bbb.com
+                    updatedAt: 2022/05/09/13/22/32
+                    createdAt: 2022/05/09/13/22/32
+                    posts:
+                      - id: 0
+                        comment: おはようございます。
+                        updatedAt: 2022/05/09/13/22/32
+                        createdAT: 2022/05/09/13/22/32
+                        writer: {}
+                    followers:
+                      - {}
+                    follows:
+                      - {}
+        '400':
+          description: Bad Request
+        '409':
+          description: Email Conflict
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: 田中二郎
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                  example: DD@SS.com
+                  maxLength: 100
+                password:
+                  type: string
+              required:
+                - userName
+                - email
+                - password
+            examples:
+              example-1:
+                value:
+                  userName: 田中二郎
+                  email: DD@SS.com
+                  password: string
+        description: Post the necessary fields for the API to create a new user.
+      description: Create a new user.
+    get:
+      summary: Get All Users For Admin
+      operationId: get-admin-user
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      name: 田中一郎
+                      email: aaa@bbb.com
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAt: 2022/05/09/13/22/32
+                example-2:
+                  value:
+                    - id: 0
+                      name: 田中一郎
+                      email: aaa@bbb.com
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAt: 2022/05/09/13/22/32
+                      posts:
+                        - id: 0
+                          comment: おはようございます。
+                          updatedAt: 2022/05/09/13/22/32
+                          createdAT: 2022/05/09/13/22/32
+                          writer: {}
+                      followers:
+                        - {}
+                      follows:
+                        - {}
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              examples: {}
+      description: Get all users.
+      parameters: []
+      tags:
+        - admin
+    parameters: []
+  /user:
+    get:
+      summary: Get All Users
+      tags:
+        - user
+      responses:
+        '200':
+          description: Get all users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      name: 田中一郎
+                      email: aaa@bbb.com
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAt: 2022/05/09/13/22/32
+                      isFollowing: false
+                      followersCount: 0
+      operationId: get-user
+      description: Get all users.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: userId
+          description: user id
+  '/follow/{targetId}':
+    parameters:
+      - schema:
+          type: string
+        name: targetId
+        in: path
+        required: true
+        description: targetId
+    put:
+      summary: Update Following
+      operationId: put-follow-targetId
+      responses:
+        '200':
+          description: Updated following.
+        '404':
+          description: Not found user.
+      description: Update following.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: userId
+          description: user id
+      tags:
+        - user
+    delete:
+      summary: ''
+      operationId: delete-follow-targetId
+      responses:
+        '200':
+          description: Deleted following.
+        '404':
+          description: Not found user.
+      description: Delete following.
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: userId
+          description: user id
+  /post:
+    get:
+      summary: post
+      responses:
+        '200':
+          description: Get owned post.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      comment: おはようございます。
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAT: 2022/05/09/13/22/32
+                      writer:
+                        id: 0
+                        name: 田中一郎
+                        email: aaa@bbb.com
+                        updatedAt: 2022/05/09/13/22/32
+                        createdAt: 2022/05/09/13/22/32
+        '404':
+          description: Not Found User.
+      operationId: get-post
+      description: Get owned post
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: userId
+          description: user id
+      tags:
+        - post
+    post:
+      summary: ''
+      operationId: post-post
+      responses:
+        '200':
+          description: Posted.
+        '400':
+          description: Too Long Comment.
+      description: Create post.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  maxLength: 200
+                  example: 投稿致しました。
+                userId:
+                  type: integer
+                  format: int64
+              required:
+                - comment
+                - userId
+  '/post/{postId}':
+    parameters:
+      - schema:
+          type: string
+        name: postId
+        in: path
+        required: true
+        description: postId
+    patch:
+      summary: ''
+      operationId: patch-post-postId
+      responses:
+        '200':
+          description: Updated post.
+        '400':
+          description: Too Long Comment.
+        '404':
+          description: Not Found Post
+      description: Update post.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  maxLength: 200
+                  example: 投稿修正致しました。
+      tags:
+        - post
+    delete:
+      summary: ''
+      operationId: delete-post-postId
+      responses:
+        '200':
+          description: Deleted Post
+        '404':
+          description: Not Found Post
+      description: Delete post.
+  /post/home:
+    get:
+      summary: home post
+      responses:
+        '200':
+          description: 'Get post(owned, follows)'
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 20
+                items:
+                  $ref: '#/components/schemas/Post'
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      comment: おはようございます。
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAT: 2022/05/09/13/22/32
+                      writer:
+                        id: 0
+                        name: 田中一郎
+                        email: aaa@bbb.com
+                        updatedAt: 2022/05/09/13/22/32
+                        createdAt: 2022/05/09/13/22/32
+        '404':
+          description: Not Found User
+      operationId: get-post-home
+      description: 'Get post(owned, follows)'
+      parameters:
+        - schema:
+            type: integer
+          in: query
+          name: userId
+          description: user id
+      tags:
+        - home
+components:
+  schemas:
+    User:
+      type: object
+      title: User
+      description: SNS User
+      examples: []
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the given user.
+          format: int64
+        name:
+          type: string
+          maxLength: 50
+          example: 田中一郎
+          description: Name of User
+        email:
+          type: string
+          format: email
+          example: aaa@bbb.com
+          maxLength: 100
+          description: email of user
+        updatedAt:
+          type: string
+          description: The date that the user was updated.
+          example: 2022/05/09/13/22/32
+        createdAt:
+          type: string
+          description: The date that the user was created.
+          example: 2022/05/09/13/22/32
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        followers:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        follows:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+        isFollowing:
+          type: boolean
+          default: false
+        followersCount:
+          type: integer
+      required:
+        - id
+        - name
+        - email
+        - updatedAt
+        - createdAt
+    Post:
+      title: Post
+      x-stoplight:
+        id: hw2jvfh00l0es
+      type: object
+      description: post
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: post id
+        comment:
+          type: string
+          maxLength: 200
+          example: おはようございます。
+          description: comment
+        updatedAt:
+          type: string
+          example: 2022/05/09/13/22/32
+          description: The date that the user was updated.
+        createdAt:
+          type: string
+          example: 2022/05/09/13/22/32
+          description: The date that the user was created.
+        writer:
+          $ref: '#/components/schemas/User'
+      required:
+        - id
+        - comment
+        - updatedAt
+        - createdAt
+        - writer
+      examples:
+        - id: 0
+          comment: おはようございます。
+          updatedAt: 2022/05/09/13/22/32
+          createdAt: 2022/05/09/13/22/32
+          writer:
+            id: 0
+            name: 田中一郎
+            email: aaa@bbb.com
+            updatedAt: 2022/05/09/13/22/32
+            createdAt: 2022/05/09/13/22/32
+            posts:
+              - id: 0
+                comment: おはようございます。
+                updatedAt: 2022/05/09/13/22/32
+                createdAT: 2022/05/09/13/22/32
+                writer: {}
+            followers:
+              - {}
+            follows:
+              - {}
+            isFollowing: false
+            followersCount: 0
+  securitySchemes: {}
+tags:
+  - name: admin
+    description: admin
+  - name: home
+    description: home
+  - name: post
+    description: post
+  - name: user
+    description: post
