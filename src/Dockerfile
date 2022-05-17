@@ -8,8 +8,6 @@ ENV CGO_ENABLED=0 \
     GOARCH=amd64 \
     GO111MODULE=auto
 
-COPY go.mod go.sum ./
-
 RUN go mod download
 
 EXPOSE 8080
