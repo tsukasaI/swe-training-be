@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  cms_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VARIANT: ${GO_VERSION}
+        WORKDIR: ${WORKING_DIR}
+    image: auwellnessforbiz-cms-api-image
+    container_name: auwellnessforbiz-cms-api-container
+    tty: true
+    depends_on:
+      - db
+    volumes:
+      - ../:${WORKING_DIR}
+      - ~/.gitconfig:/root/.gitconfig
+      - ${USERPROFILE-~}/.ssh:/home/vscode/.ssh
+    ports:
+      - "7788:7788"
+      - "7789:7789"
+    cap_add:
+      # For debugging with dlv
+      - SYS_PTRACE
+    security_opt:
+      # For debugging with dlv
+      - seccomp:unconfined
+    # working_dir: ""
+    environment:
+      TZ: ${TIME_ZONE}
+
+  db:
+    image: mysql/mysql-server:8.0
+    container_name: auwellnessforbiz-cms-db-container
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./resource:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      TZ: ${TIME_ZONE}
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_ja_0900_as_cs_ks
+
+volumes:
+  mysql:
+    driver: local
