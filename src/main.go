@@ -1,10 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
+
+type User struct {
+	Id int `gorm:"column:id"`
+}
 
 func main() {
 	engine := gin.Default()
@@ -14,5 +21,15 @@ func main() {
 		})
 	})
 
-	engine.Run(":7788")
+	dsn := "docker:docker@tcp(db:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	fmt.Printf("%v\n", db)
+	fmt.Printf("%v\n", err)
+
+	var users []User
+	db.Find(&users)
+	fmt.Printf("%v\n", users)
+
+	engine.Run(":8080")
 }
