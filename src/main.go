@@ -10,7 +10,12 @@ import (
 )
 
 type User struct {
-	Id int `gorm:"column:id"`
+	Id        int `gorm:"column:id"`
+	Name      string
+	Email     string
+	Password  string
+	CreatedAt string
+	UpdatedAt string
 }
 
 func main() {
