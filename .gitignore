@@ -20,3 +20,5 @@
 
 # intelliJ
 .idea
+
+.DS_store

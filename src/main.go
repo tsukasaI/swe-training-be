@@ -23,10 +23,11 @@ func main() {
 	engine.GET("/home", func(c *gin.Context) {
 		userId := c.Query("userId")
 		fmt.Printf("%v\n", userId)
-		err := getHome(userId)
+		posts, err := getHome(userId)
 		fmt.Printf("%v\n", err)
+		fmt.Printf("%v\n", posts)
 		c.JSON(http.StatusOK, gin.H{
-			"message": "hello world",
+			"data": posts,
 		})
 	})
 
@@ -60,20 +61,21 @@ type User struct {
 	Id        int `gorm:"primaryKey"`
 	Name      string
 	Email     string
-	// Password  string
+	Password  string
 	CreatedAt string
 	UpdatedAt string
 }
 
 
-func getHome (userId string) (error) {
+// home.go
+func getHome (userId string) ([]Post, error) {
 	db, err := connect()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	var posts []Post
 	subQuery := db.Select("`follow_id`").Where("user_id = ?", userId).Table("user_follows")
 	db.Where("`user_id` in (?)", subQuery).Or("user_id = ?", userId).Preload("User").Find(&posts)
 	fmt.Printf("%v\n", posts)
-	return nil
+	return posts, nil
 }
