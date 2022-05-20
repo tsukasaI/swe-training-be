@@ -50,15 +50,16 @@ func getHome(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"message": "userが存在しません。"})
 		return
 	}
-	posts, err := getHomeData(db, user)
+	posts, err := getHomePosts(db, user)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": err,
 		})
 		return
 	}
+	data := formHomeData(posts)
 	c.JSON(http.StatusOK, gin.H{
-		"data": posts,
+		"data": data,
 	})
 }
 
@@ -79,14 +80,6 @@ func connectDb() (*gorm.DB, error) {
 }
 
 // user.go
-
-// jsonのfield変更のために以下の書き方したらマイグレーション通らなくなった
-// type commonGormModel struct {
-// 	ID        uint           `gorm:"primaryKey" json:"id"`
-// 	CreatedAt time.Time      `json:"createdAt"`
-// 	UpdatedAt time.Time      `json:"updatedAt"`
-// 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-// }
 
 type Post struct {
 	gorm.Model
@@ -125,18 +118,22 @@ type UserResponse struct {
 }
 
 // home.go
-func getHomeData(db *gorm.DB, user User) ([]PostResponse, error) {
+func getHomePosts(db *gorm.DB, user User) ([]Post, error) {
 	followIds := getFollowIds(user)
 
 	var posts []Post
 	db.Where("`user_id` in ?", followIds).Or("user_id = ?", user.ID).Preload("User").Find(&posts)
+	return posts, nil
+}
+
+func formHomeData(posts []Post) []PostResponse {
 	var postsResponse []PostResponse
 	for _, post := range posts {
 		response := post.CreatePostResponse()
 		postsResponse = append(postsResponse, response)
 	}
 
-	return postsResponse, nil
+	return postsResponse
 }
 
 func getFollowIds(user User) []uint {
