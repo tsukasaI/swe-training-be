@@ -7,16 +7,23 @@ import (
 )
 
 // test Gin
-func TestRoute(t *testing.T) {
+func TestRequests(t *testing.T) {
 	router := setUpRouter()
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/home", nil)
-	router.ServeHTTP(w, req)
+	homeInvalidReq, _ := http.NewRequest("GET", "/home", nil)
+	router.ServeHTTP(w, homeInvalidReq)
 
-	expected := http.StatusBadRequest
-	if w.Code != expected {
-		t.Errorf("expected '%d' but got '%d'", expected, w.Code)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected '%d' but got '%d'", http.StatusBadRequest, w.Code)
+	}
+
+	homeValidReq, _ := http.NewRequest("GET", "/home?userId=1", nil)
+	router.ServeHTTP(w, homeValidReq)
+	w = httptest.NewRecorder()
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected '%d' but got '%d'", http.StatusOK, w.Code)
 	}
 }
 
