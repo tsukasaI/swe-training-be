@@ -79,11 +79,6 @@ func connectDb() (*gorm.DB, error) {
 }
 
 // user.go
-type UserFollow struct {
-	UserID   uint
-	FollowId uint
-}
-
 type Post struct {
 	gorm.Model
 	Comment string `gorm:"type:varchar(200) not null"`
