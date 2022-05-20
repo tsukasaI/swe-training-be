@@ -79,30 +79,64 @@ func connectDb() (*gorm.DB, error) {
 }
 
 // user.go
+
+// jsonのfield変更のために以下の書き方したらマイグレーション通らなくなった
+// type commonGormModel struct {
+// 	ID        uint           `gorm:"primaryKey" json:"id"`
+// 	CreatedAt time.Time      `json:"createdAt"`
+// 	UpdatedAt time.Time      `json:"updatedAt"`
+// 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+// }
+
 type Post struct {
 	gorm.Model
-	Comment string `gorm:"type:varchar(200) not null"`
-	UserID  uint
-	User    User
+	Comment string `gorm:"type:varchar(200) not null" json:"comment"`
+	UserID  uint   `json:"-"`
+	User    User   `json:"writer"`
+}
+
+type CommonResponseField struct {
+	Id        uint   `json:"id"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
+}
+
+type PostResponse struct {
+	CommonResponseField
+	Comment string `json:"comment"`
+	User    UserResponse
 }
 
 type User struct {
 	gorm.Model
-	Name     string `gorm:"type:varchar(50) not null"`
-	Email    string `gorm:"type:varchar(100) not null unique"`
-	Password string `gorm:"type:varchar(255) not null"`
-	Posts    []Post
+	Name     string `gorm:"type:varchar(50) not null" json:"name"`
+	Email    string `gorm:"type:varchar(100) not null unique" json:"email"`
+	Password string `gorm:"type:varchar(255) not null" json:"-"`
+	Posts    []Post `json:"posts"`
 	Follows  []User `gorm:"many2many:user_follows"`
 }
 
+type UserResponse struct {
+	CommonResponseField
+	Name    string          `json:"name"`
+	Email   string          `json:"email"`
+	Posts   *[]PostResponse `json:"posts"`
+	Follows *[]UserResponse `json:"follows"`
+}
+
 // home.go
-func getHomeData(db *gorm.DB, user User) ([]Post, error) {
+func getHomeData(db *gorm.DB, user User) ([]PostResponse, error) {
 	followIds := getFollowIds(user)
 
 	var posts []Post
 	db.Where("`user_id` in ?", followIds).Or("user_id = ?", user.ID).Preload("User").Find(&posts)
+	var postsResponse []PostResponse
+	for _, post := range posts {
+		response := post.CreatePostResponse()
+		postsResponse = append(postsResponse, response)
+	}
 
-	return posts, nil
+	return postsResponse, nil
 }
 
 func getFollowIds(user User) []uint {
@@ -111,4 +145,24 @@ func getFollowIds(user User) []uint {
 		followIds = append(followIds, followUser.ID)
 	}
 	return followIds
+}
+
+func (post *Post) CreatePostResponse() PostResponse {
+	postResponse := PostResponse{}
+	postResponse.Id = post.ID
+	postResponse.Comment = post.Comment
+	postResponse.CreatedAt = post.CreatedAt.Format("2006/01/02/15/04/05")
+	postResponse.UpdatedAt = post.UpdatedAt.Format("2006/01/02/15/04/05")
+	postResponse.User = post.User.CreateUserResponse()
+	return postResponse
+}
+
+func (user *User) CreateUserResponse() UserResponse {
+	userResponse := UserResponse{}
+	userResponse.Id = user.ID
+	userResponse.Name = user.Name
+	userResponse.Email = user.Email
+	userResponse.CreatedAt = user.CreatedAt.Format("2006/01/02/15/04/05")
+	userResponse.UpdatedAt = user.UpdatedAt.Format("2006/01/02/15/04/05")
+	return userResponse
 }
