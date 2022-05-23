@@ -3,6 +3,7 @@ package controllers
 import (
 	"forbizbe/src/database"
 	"forbizbe/src/models"
+	"forbizbe/src/resources"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +17,9 @@ type QueryParam struct {
 func GetHome(c *gin.Context) {
 	var queryParam QueryParam
 	if err := c.ShouldBind(&queryParam); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "userを指定してください。"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": resources.CreateResponseBody("NotFoundUser", map[string]string{"message": "userを指定してください。"}),
+		})
 		return
 	}
 	userId := c.Query("userId")
@@ -24,24 +27,27 @@ func GetHome(c *gin.Context) {
 	db, err := database.ConnectDb()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
+			"error": resources.CreateResponseBody("NotFoundUser", err.Error()),
 		})
 		return
 	}
 	user, err := models.FindUser(db, userId)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "userが存在しません。"})
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": resources.CreateResponseBody("NotFoundUser", map[string]string{"message": "userが存在しません。"}),
+		})
 		return
 	}
 	posts, err := models.GetHomePosts(db, user)
 	if err != nil {
-		c.JSON(500, gin.H{
-			"error": err,
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": resources.CreateResponseBody("InternalServerError", err.Error()),
 		})
 		return
 	}
 	data := models.FormHomeData(posts)
+	responseBody := resources.CreateResponseBody("ok", data)
 	c.JSON(http.StatusOK, gin.H{
-		"data": data,
+		"result": responseBody,
 	})
 }

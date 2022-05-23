@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"forbizbe/src/controllers"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,10 @@ func main() {
 
 	// main function
 	engine := setUpRouter()
-	engine.Run(":8080")
+	err := engine.Run(":8080")
+	if err != nil {
+		fmt.Printf("Error occured when starting HTTP server: %v", err)
+	}
 }
 
 func setUpRouter() *gin.Engine {
