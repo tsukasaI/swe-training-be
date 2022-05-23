@@ -1,9 +1,10 @@
 package main
 
 import (
+	"strconv"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 type Post struct {
