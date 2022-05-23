@@ -1,6 +1,8 @@
 package main
 
 import (
+	"forbizbe/src/database"
+
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -30,7 +32,7 @@ func TestRequests(t *testing.T) {
 // ホントはmock入れたいけど時間の都合上諦め
 // 30 minくらいやって"github.com/DATA-DOG/go-sqlmock"使うと良さそうなのだけわかった
 func TestFindUser(t *testing.T) {
-	db, err := connectDb()
+	db, err := database.ConnectDb()
 	if err != nil {
 		t.Errorf("Error Opening DB %s", err)
 	}
@@ -46,7 +48,7 @@ func TestFindUser(t *testing.T) {
 }
 
 func TestFindPost(t *testing.T) {
-	db, err := connectDb()
+	db, err := database.ConnectDb()
 	if err != nil {
 		t.Errorf("Error Opening DB %s", err)
 	}
@@ -62,7 +64,7 @@ func TestFindPost(t *testing.T) {
 }
 
 func TestGetFollowIds(t *testing.T) {
-	db, err := connectDb()
+	db, err := database.ConnectDb()
 	if err != nil {
 		t.Errorf("Error Opening DB %s", err)
 	}
