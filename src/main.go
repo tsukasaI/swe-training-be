@@ -7,6 +7,12 @@ import (
 )
 
 func main() {
+
+	// DB migration
+	// models.DropTables()
+	// models.Initialize()
+
+	// main function
 	engine := setUpRouter()
 	engine.Run(":8080")
 }

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func initialize() {
+func Initialize() {
 	db, err := database.ConnectDb()
 	if err != nil {
 		return
@@ -62,6 +62,7 @@ func seedUsers(db *gorm.DB) {
 				}},
 		},
 	}
+
 	db.Create(&user1)
 	var users = []User{}
 	for i := 7; i < 11; i++ {
@@ -75,4 +76,21 @@ func seedUsers(db *gorm.DB) {
 	}
 
 	db.Create(&users)
+}
+
+func DropTables() {
+	db, err := database.ConnectDb()
+	if err != nil {
+		fmt.Println("failed connect db")
+		return
+	}
+	if err = db.Migrator().DropTable("user_follows"); err != nil {
+		fmt.Println("users table drop table failed")
+	}
+	if err = db.Migrator().DropTable(&User{}); err != nil {
+		fmt.Println("users table drop table failed")
+	}
+	if err = db.Migrator().DropTable(&Post{}); err != nil {
+		fmt.Println("users table drop table failed")
+	}
 }
