@@ -22,13 +22,7 @@ func main() {
 
 func setUpRouter() *gin.Engine {
 	engine := gin.Default()
-	engine.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "ok",
-		})
-	})
 	engine.GET("/home", getHome)
-
 	return engine
 }
 
