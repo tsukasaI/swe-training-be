@@ -1,50 +1,27 @@
-package main
+package models
 
 import (
+	"fmt"
+	"forbizbe/src/database"
 	"strconv"
 
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-type Post struct {
-	gorm.Model
-	Comment string `gorm:"type:varchar(200) not null"`
-	UserID  uint
-	User    User
-}
-
-type User struct {
-	gorm.Model
-	Name     string `gorm:"type:varchar(50) not null"`
-	Email    string `gorm:"type:varchar(100) not null unique"`
-	Password string `gorm:"type:varchar(255) not null"`
-	Posts    []Post
-	Follows  []User `gorm:"many2many:user_follows"`
-}
-
-func connect() (*gorm.DB, error) {
-	dsn := "docker:docker@tcp(db:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-	return db, err
-}
-
-func main() {
-	db, err := connect()
+func initialize() {
+	db, err := database.ConnectDb()
 	if err != nil {
 		return
 	}
 
-	db.AutoMigrate(&User{}, &Post{})
-	seedUsers()
-}
-
-func seedUsers() {
-	db, err := connect()
-	if err != nil {
+	if err := db.AutoMigrate(&User{}, &Post{}); err != nil {
+		fmt.Println("Error occured when migrating")
 		return
 	}
+	seedUsers(db)
+}
+
+func seedUsers(db *gorm.DB) {
 	user1 := User{
 		Name:     "user1",
 		Email:    "user1@a.com",

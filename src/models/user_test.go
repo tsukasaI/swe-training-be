@@ -13,6 +13,7 @@ func TestFindUser(t *testing.T) {
 		t.Errorf("Error Opening DB %s", err)
 	}
 	_, err = FindUser(db, "1")
+
 	if err != nil {
 		t.Errorf("Error Fetching User %s", err)
 	}
