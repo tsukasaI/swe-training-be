@@ -21,6 +21,8 @@ func Initialize() {
 	seedUsers(db)
 }
 
+// @todo 後でメソッド分割する
+// 時間の都合上結合テストを先に行う
 func seedUsers(db *gorm.DB) {
 	user1 := User{
 		Name:     "user1",
@@ -74,8 +76,16 @@ func seedUsers(db *gorm.DB) {
 			users,
 			User{Name: name, Email: email, Password: "password", Posts: []Post{{Comment: comment}}})
 	}
-
 	db.Create(&users)
+
+	user2 := User{}
+	db.Find(&user2, 2)
+	for j := 3; j < 8; j++ {
+		taegetUser := User{}
+		taegetUser.ID = uint(j)
+		user2.Follows = append(user2.Follows, taegetUser)
+	}
+	db.Save(user2)
 }
 
 func DropTables() {

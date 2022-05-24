@@ -13,8 +13,8 @@ type CommonModelResponseField struct {
 
 type PostResponse struct {
 	CommonModelResponseField
-	Comment string `json:"comment"`
-	User    UserResponse
+	Comment string       `json:"comment"`
+	User    UserResponse `json:"writer"`
 }
 
 type UserResponse struct {

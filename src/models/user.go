@@ -8,10 +8,10 @@ import (
 
 type User struct {
 	gorm.Model
-	Name     string `gorm:"type:varchar(50) not null" json:"name"`
-	Email    string `gorm:"type:varchar(100) not null unique" json:"email"`
-	Password string `gorm:"type:varchar(255) not null" json:"-"`
-	Posts    []Post `json:"posts"`
+	Name     string `gorm:"type:varchar(50) not null"`
+	Email    string `gorm:"type:varchar(100) not null unique"`
+	Password string `gorm:"type:varchar(255) not null"`
+	Posts    []Post
 	Follows  []User `gorm:"many2many:user_follows"`
 }
 

@@ -8,9 +8,9 @@ import (
 
 type Post struct {
 	gorm.Model
-	Comment string `gorm:"type:varchar(200) not null" json:"comment"`
-	UserID  uint   `json:"-"`
-	User    User   `json:"writer"`
+	Comment string `gorm:"type:varchar(200) not null"`
+	UserID  uint
+	User    User
 }
 
 func (post *Post) CreatePostResponse() resources.PostResponse {
