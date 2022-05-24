@@ -1,32 +1,29 @@
 package resources
 
-type ResponseBody struct {
+type responseBody struct {
 	Code string      `json:"code"`
 	Data interface{} `json:"data"`
 }
 
-type CommonModelResponseField struct {
+type commonModelResponseField struct {
 	Id        uint   `json:"id"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 }
 
 type PostResponse struct {
-	CommonModelResponseField
-	Comment string       `json:"comment"`
-	User    UserResponse `json:"writer"`
+	commonModelResponseField
+	Comment string              `json:"comment"`
+	User    UserResponseForHome `json:"writer"`
 }
 
-type UserResponse struct {
-	CommonModelResponseField
-	Name    string          `json:"name"`
-	Email   string          `json:"email"`
-	Posts   *[]PostResponse `json:"posts"`
-	Follows *[]UserResponse `json:"follows"`
+type UserResponseForHome struct {
+	commonModelResponseField
+	Name string `json:"name"`
 }
 
-func CreateResponseBody(code string, data interface{}) ResponseBody {
-	return ResponseBody{
+func CreateResponseBody(code string, data interface{}) responseBody {
+	return responseBody{
 		Code: code,
 		Data: data,
 	}

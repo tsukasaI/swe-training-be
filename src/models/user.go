@@ -23,11 +23,10 @@ func FindUser(db *gorm.DB, userId string) (User, error) {
 	return user, nil
 }
 
-func (user *User) CreateUserResponse() resources.UserResponse {
-	userResponse := resources.UserResponse{}
+func (user *User) CreateUserResponse() resources.UserResponseForHome {
+	userResponse := resources.UserResponseForHome{}
 	userResponse.Id = user.ID
 	userResponse.Name = user.Name
-	userResponse.Email = user.Email
 	userResponse.CreatedAt = user.CreatedAt.Format("2006/01/02/15/04/05")
 	userResponse.UpdatedAt = user.UpdatedAt.Format("2006/01/02/15/04/05")
 	return userResponse

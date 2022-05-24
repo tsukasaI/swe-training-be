@@ -14,8 +14,8 @@ func TestRequests(t *testing.T) {
 	homeInvalidReq, _ := http.NewRequest("GET", "/home", nil)
 	router.ServeHTTP(w, homeInvalidReq)
 
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("expected '%d' but got '%d'", http.StatusBadRequest, w.Code)
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected '%d' but got '%d'", http.StatusNotFound, w.Code)
 	}
 
 	homeValidReq, _ := http.NewRequest("GET", "/home?userId=1", nil)
