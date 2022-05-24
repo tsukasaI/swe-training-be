@@ -17,8 +17,8 @@ type QueryParam struct {
 func GetHome(c *gin.Context) {
 	var queryParam QueryParam
 	if err := c.ShouldBind(&queryParam); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": resources.CreateResponseBody("NotFoundUser", map[string]string{"message": "userを指定してください。"}),
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": resources.CreateResponseBody("UndesignatedUser", map[string]string{"message": "userを指定してください。"}),
 		})
 		return
 	}
