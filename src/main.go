@@ -2,34 +2,27 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"forbizbe/src/controllers"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 )
 
-type User struct {
-	Id int `gorm:"column:id"`
+func main() {
+
+	// DB migration
+	// models.DropTables()
+	// models.Initialize()
+
+	// main function
+	engine := setUpRouter()
+	err := engine.Run(":8080")
+	if err != nil {
+		fmt.Printf("Error occured when starting HTTP server: %v", err)
+	}
 }
 
-func main() {
+func setUpRouter() *gin.Engine {
 	engine := gin.Default()
-	engine.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "hello world",
-		})
-	})
-
-	dsn := "docker:docker@tcp(db:3306)/test?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-	fmt.Printf("%v\n", db)
-	fmt.Printf("%v\n", err)
-
-	var users []User
-	db.Find(&users)
-	fmt.Printf("%v\n", users)
-
-	engine.Run(":8080")
+	engine.GET("/home", controllers.GetHome)
+	return engine
 }

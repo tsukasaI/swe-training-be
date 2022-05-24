@@ -1,0 +1,525 @@
+openapi: 3.0.0
+info:
+  title: swe-training
+  version: "1.0"
+  description: swe-training
+paths:
+  "/admin/user/{userId}":
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: userId
+        in: path
+        description: An existing user id.
+        required: true
+    patch:
+      summary: Update User Information For Admin
+      operationId: patch-admin-users-userId
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User Not Found
+        "409":
+          description: Email Already Taken
+      description: Update the information of an existing user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 田中三郎
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                  maxLength: 100
+                  example: SS@dd.com
+                password:
+                  type: string
+              required:
+                - name
+                - email
+                - password
+            examples:
+              example-1:
+                value:
+                  name: 田中三郎
+                  email: SS@dd.com
+                  password: string
+        description: ""
+      tags:
+        - admin
+    delete:
+      summary: Delete User Information For Admin
+      operationId: delete-admin-user-userId
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User Not Found
+      description: Delete an existing user.
+      tags:
+        - admin
+  /admin/user:
+    post:
+      summary: Create New User
+      operationId: post-admin-user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              examples:
+                example-1:
+                  value:
+                    id: 0
+                    name: 田中一郎
+                    email: aaa@bbb.com
+                    updatedAt: 2022/05/09/13/22/32
+                    createdAt: 2022/05/09/13/22/32
+        "400":
+          description: Bad Request
+        "409":
+          description: Email Already Taken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: 田中二郎
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                  example: DD@SS.com
+                  maxLength: 100
+                password:
+                  type: string
+              required:
+                - userName
+                - email
+                - password
+            examples:
+              example-1:
+                value:
+                  userName: 田中二郎
+                  email: DD@SS.com
+                  password: string
+        description: ""
+      description: Create a new user.
+      tags:
+        - admin
+    get:
+      summary: Get All Users For Admin
+      operationId: get-admin-user
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      name: 田中一郎
+                      email: aaa@bbb.com
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAt: 2022/05/09/13/22/32
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              examples: {}
+      description: Get all users.
+      parameters: []
+      tags:
+        - admin
+    parameters: []
+  /user:
+    get:
+      summary: Get All Users
+      tags:
+        - user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      name: 田中一郎
+                      email: aaa@bbb.com
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAt: 2022/05/09/13/22/32
+                      isFollowing: false
+                      followersCount: 0
+        "404":
+          description: User Not Found
+      operationId: get-user
+      description: Get all users.
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          in: query
+          name: userId
+          description: An existing user id.
+          required: true
+  "/follow/{targetId}":
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: targetId
+        in: path
+        required: true
+        description: An existing user id excluding user own id.
+    put:
+      summary: Update Following
+      operationId: put-follow-targetId
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User Not Found
+        "409":
+          description: Duplicated Following
+      description: Update following.
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          in: query
+          name: userId
+          description: An existing user id.
+          required: true
+      tags:
+        - user
+    delete:
+      summary: Delete Following
+      operationId: delete-follow-targetId
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User Not Found
+        "409":
+          description: Not Existing Following
+      description: Delete following.
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          in: query
+          name: userId
+          description: An existing user id.
+          required: true
+      tags:
+        - user
+  /post:
+    get:
+      summary: Get Owned Posts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      comment: おはようございます。
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAT: 2022/05/09/13/22/32
+                      writer:
+                        id: 0
+                        name: 田中一郎
+                        email: aaa@bbb.com
+                        updatedAt: 2022/05/09/13/22/32
+                        createdAt: 2022/05/09/13/22/32
+        "404":
+          description: Not Found User.
+      operationId: get-post
+      description: Get owned post.
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          in: query
+          name: userId
+          description: An existing user id.
+          required: true
+      tags:
+        - post
+    post:
+      summary: Create New Post
+      operationId: post-post
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Too Long Comment
+      description: Create New Post.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  maxLength: 200
+                  example: 投稿致しました。
+                userId:
+                  type: integer
+                  format: int64
+              required:
+                - comment
+                - userId
+      tags:
+        - post
+  "/post/{postId}":
+    parameters:
+      - schema:
+          type: integer
+          format: int64
+        name: postId
+        in: path
+        required: true
+        description: An existing post id.
+    patch:
+      summary: Update Post
+      operationId: patch-post-postId
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Too Long Comment
+        "404":
+          description: Post Not Found
+      description: Update post.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  maxLength: 200
+                  example: 投稿修正致しました。
+              required:
+                - comment
+      tags:
+        - post
+    delete:
+      summary: Delete Post
+      operationId: delete-post-postId
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Post Not Found
+      description: Delete post.
+      tags:
+        - post
+  /post/home:
+    get:
+      summary: Get Posts For Home
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                maxItems: 20
+                items:
+                  $ref: "#/components/schemas/Post"
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      comment: おはようございます。
+                      updatedAt: 2022/05/09/13/22/32
+                      createdAT: 2022/05/09/13/22/32
+                      writer:
+                        id: 0
+                        name: 田中一郎
+                        email: aaa@bbb.com
+                        updatedAt: 2022/05/09/13/22/32
+                        createdAt: 2022/05/09/13/22/32
+        "404":
+          description: User Not Found
+      operationId: get-post-home
+      description: Get posts for home.
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          in: query
+          name: userId
+          description: An existing user id.
+          required: true
+      tags:
+        - home
+components:
+  schemas:
+    User:
+      type: object
+      title: User
+      description: SNS User
+      example:
+        - id: 0
+          name: 田中一郎
+          email: aaa@bbb.com
+          updatedAt: 2022/05/09/13/22/32
+          createdAt: 2022/05/09/13/22/32
+          posts:
+            - id: 0
+              comment: おはようございます。
+              updatedAt: 2022/05/09/13/22/32
+              createdAT: 2022/05/09/13/22/32
+              writer: {}
+          followers:
+            - {}
+          follows:
+            - {}
+          isFollowing: false
+          followersCount: 0
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the given user.
+          format: int64
+        name:
+          type: string
+          maxLength: 50
+          example: 田中一郎
+          description: Name of User
+        email:
+          type: string
+          format: email
+          example: aaa@bbb.com
+          maxLength: 100
+          description: email of user
+        updatedAt:
+          type: string
+          description: The date that the user was updated.
+          example: 2022/05/09/13/22/32
+        createdAt:
+          type: string
+          description: The date that the user was created.
+          example: 2022/05/09/13/22/32
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Post"
+        followers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        follows:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        isFollowing:
+          type: boolean
+          default: false
+        followersCount:
+          type: integer
+      required:
+        - id
+        - name
+        - email
+        - updatedAt
+        - createdAt
+    Post:
+      title: Post
+      type: object
+      description: post
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: post id
+        comment:
+          type: string
+          maxLength: 200
+          example: おはようございます。
+          description: comment
+        updatedAt:
+          type: string
+          example: 2022/05/09/13/22/32
+          description: The date that the user was updated.
+        createdAt:
+          type: string
+          example: 2022/05/09/13/22/32
+          description: The date that the user was created.
+        writer:
+          $ref: "#/components/schemas/User"
+      required:
+        - id
+        - comment
+        - updatedAt
+        - createdAt
+        - writer
+      example:
+        - id: 0
+          comment: おはようございます。
+          updatedAt: 2022/05/09/13/22/32
+          createdAt: 2022/05/09/13/22/32
+          writer:
+            id: 0
+            name: 田中一郎
+            email: aaa@bbb.com
+            updatedAt: 2022/05/09/13/22/32
+            createdAt: 2022/05/09/13/22/32
+            posts:
+              - id: 0
+                comment: おはようございます。
+                updatedAt: 2022/05/09/13/22/32
+                createdAT: 2022/05/09/13/22/32
+                writer: {}
+            followers:
+              - {}
+            follows:
+              - {}
+            isFollowing: false
+            followersCount: 0
+  securitySchemes: {}
+tags:
+  - name: admin
+    description: admin
+  - name: home
+    description: home
+  - name: post
+    description: post
+  - name: user
+    description: post
