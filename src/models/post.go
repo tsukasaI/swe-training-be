@@ -22,3 +22,13 @@ func (post *Post) CreatePostResponse() resources.PostResponse {
 	postResponse.User = post.User.CreateUserResponse()
 	return postResponse
 }
+
+func FormHomeData(posts []Post) []resources.PostResponse {
+	postsResponse := []resources.PostResponse{}
+	for _, post := range posts {
+		response := post.CreatePostResponse()
+		postsResponse = append(postsResponse, response)
+	}
+
+	return postsResponse
+}

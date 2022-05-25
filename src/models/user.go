@@ -40,16 +40,6 @@ func GetHomePosts(db *gorm.DB, user User) ([]Post, error) {
 	return posts, nil
 }
 
-func FormHomeData(posts []Post) []resources.PostResponse {
-	var postsResponse []resources.PostResponse
-	for _, post := range posts {
-		response := post.CreatePostResponse()
-		postsResponse = append(postsResponse, response)
-	}
-
-	return postsResponse
-}
-
 func getFollowIds(user User) []uint {
 	var followIds []uint
 	for _, followUser := range user.Follows {

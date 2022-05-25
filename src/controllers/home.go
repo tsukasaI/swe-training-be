@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"forbizbe/src/database"
 	"forbizbe/src/models"
 	"forbizbe/src/resources"
@@ -47,6 +48,7 @@ func GetHome(c *gin.Context) {
 	}
 	data := models.FormHomeData(posts)
 	responseBody := resources.CreateResponseBody("ok", data)
+	fmt.Printf("%v\n", responseBody)
 	c.JSON(http.StatusOK, gin.H{
 		"result": responseBody,
 	})
