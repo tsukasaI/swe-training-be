@@ -24,5 +24,6 @@ func main() {
 func setUpRouter() *gin.Engine {
 	engine := gin.Default()
 	engine.GET("/post/home", controllers.GetHome)
+	engine.POST("/post", controllers.PostPost)
 	return engine
 }

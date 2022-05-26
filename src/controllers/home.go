@@ -1,23 +1,17 @@
 package controllers
 
 import (
-	"fmt"
 	"forbizbe/src/database"
 	"forbizbe/src/models"
 	"forbizbe/src/resources"
+	"forbizbe/src/validators"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-type QueryParam struct {
-	// userIdはnumericで指定してほしい テスト仕様書の変更したほうがよい。 取り急ぎコメント
-	UserId int `form:"userId" binding:"required,numeric"`
-}
-
 func GetHome(c *gin.Context) {
-	var queryParam QueryParam
-	if err := c.ShouldBind(&queryParam); err != nil {
+	if err := validators.ValidateUserId(c); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": resources.CreateResponseBody("UndesignatedUser", map[string]string{"message": "userを指定してください。"}),
 		})
@@ -48,7 +42,6 @@ func GetHome(c *gin.Context) {
 	}
 	data := models.FormHomeData(posts)
 	responseBody := resources.CreateResponseBody("ok", data)
-	fmt.Printf("%v\n", responseBody)
 	c.JSON(http.StatusOK, gin.H{
 		"result": responseBody,
 	})
