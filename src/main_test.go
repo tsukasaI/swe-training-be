@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -56,7 +55,6 @@ func TestRequests(t *testing.T) {
 		q := postValidReq.URL.Query()
 		q.Add("userId", "1")
 		postValidReq.URL.RawQuery = q.Encode()
-		fmt.Printf("\n\n%v\n\n", postValidReq)
 
 		router.ServeHTTP(w, postValidReq)
 		if w.Code != http.StatusOK {
@@ -64,12 +62,17 @@ func TestRequests(t *testing.T) {
 		}
 
 		// set valid query param
-		q.Del("userId")
+		postInvalidReq, _ := http.NewRequest(http.MethodGet, "/post/home", nil)
+		w = httptest.NewRecorder()
+		q = postInvalidReq.URL.Query()
 		q.Add("userId", "")
-		postValidReq.URL.RawQuery = q.Encode()
-		fmt.Printf("\n\n%v\n\n", postValidReq)
+		postInvalidReq.URL.RawQuery = q.Encode()
 
-		router.ServeHTTP(w, postValidReq)
+		router.ServeHTTP(w, postInvalidReq)
+		println()
+		println(w.Code)
+		println(w.Code)
+		println()
 		if w.Code != http.StatusNotFound {
 			t.Errorf("expected '%d' but got '%d'", http.StatusNotFound, w.Code)
 		}
