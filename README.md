@@ -1,4 +1,4 @@
-# auWellness_forBiz_api
+# swe
 
 ## 概要
 
@@ -118,6 +118,7 @@ npm run dev
    ```bash
    mysql --host=host.docker.internal -P 3306 --user=docker --password=docker for_biz_test < resource/for_biz_test.sql
    ```
+
 2. 下記コマンドでテストを実行する
 
    ```bash
