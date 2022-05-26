@@ -39,7 +39,7 @@ func TestRequests(t *testing.T) {
 	t.Run("Execute post post request", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := requestPost{
-			Comment: "Good morning and have a nice day.",
+			"Good morning and have a nice day.",
 		}
 		// set payload
 		payload, err := json.Marshal(data)
@@ -61,21 +61,36 @@ func TestRequests(t *testing.T) {
 			t.Errorf("expected '%d' but got '%d'", http.StatusOK, w.Code)
 		}
 
-		// set valid query param
-		postInvalidReq, _ := http.NewRequest(http.MethodGet, "/post/home", nil)
+		// set invalid query param
+		postInvalidQueryReq, _ := http.NewRequest(http.MethodPost, "/post", bytes.NewBuffer([]byte(payload)))
 		w = httptest.NewRecorder()
-		q = postInvalidReq.URL.Query()
+		q = postInvalidQueryReq.URL.Query()
+		q.Del("userId")
 		q.Add("userId", "")
-		postInvalidReq.URL.RawQuery = q.Encode()
+		postInvalidQueryReq.URL.RawQuery = q.Encode()
 
-		router.ServeHTTP(w, postInvalidReq)
-		println()
-		println(w.Code)
-		println(w.Code)
-		println()
+		router.ServeHTTP(w, postInvalidQueryReq)
 		if w.Code != http.StatusNotFound {
 			t.Errorf("expected '%d' but got '%d'", http.StatusNotFound, w.Code)
 		}
 
+		// without payload
+		var invalidRequestPost requestPost
+		invalidPayload, err := json.Marshal(invalidRequestPost)
+		if err != nil {
+			t.Error("Error occurreded when invalid payload preparation")
+		}
+
+		postInvalidPayloadReq, _ := http.NewRequest(http.MethodPost, "/post", bytes.NewBuffer([]byte(invalidPayload)))
+		w = httptest.NewRecorder()
+		q = postInvalidPayloadReq.URL.Query()
+		q.Del("userId")
+		q.Add("userId", "1")
+		postInvalidPayloadReq.URL.RawQuery = q.Encode()
+
+		router.ServeHTTP(w, postInvalidPayloadReq)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected '%d' but got '%d'", http.StatusBadRequest, w.Code)
+		}
 	})
 }
