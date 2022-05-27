@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func PostPost(c *gin.Context) {
@@ -17,7 +18,24 @@ func PostPost(c *gin.Context) {
 		})
 		return
 	}
-	if err := validators.ValidatePostComment(c); err != nil {
+
+	var payload validators.BodyParamComment
+	err := c.ShouldBindWith(&payload, binding.JSON)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": resources.CreateResponseBody("InvalidField", map[string]string{"message": "入力に誤りがあります。"}),
+		})
+		return
+	}
+
+	if err := validators.ValidatePostComment(payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": resources.CreateResponseBody("InvalidField", map[string]string{"message": "入力に誤りがあります。"}),
+		})
+		return
+	}
+
+	if err := validators.ValidatePostComment(payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": resources.CreateResponseBody("InvalidField", map[string]string{"message": "入力に誤りがあります。"}),
 		})
@@ -33,7 +51,7 @@ func PostPost(c *gin.Context) {
 		})
 		return
 	}
-	_, err = models.FindUser(db, userId)
+	user, err := models.FindUser(db, userId)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": resources.CreateResponseBody("NotFoundUser", map[string]string{"message": "userが存在しません。"}),
@@ -41,9 +59,19 @@ func PostPost(c *gin.Context) {
 		return
 	}
 
-	// todo postの保存
-	// todo postの取り出し
-	// todo responseの取得
+	// todo postの保存, postの取り出し
+	post, err := models.CreatePost(db, userId, payload.Comment)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": resources.CreateResponseBody("InertnalServerError", map[string]string{"message": err.Error()}),
+		})
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{})
+	post.User = user
+	response := post.CreatePostResponse()
+
+	c.JSON(http.StatusOK, gin.H{
+		"result": resources.CreateResponseBody("ok", map[string]resources.PostResponse{"data": response}),
+	})
 }

@@ -38,9 +38,8 @@ func TestRequests(t *testing.T) {
 
 	t.Run("Execute post post request", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := requestPost{
-			"Good morning and have a nice day.",
-		}
+		const postComment = "Good morning and have a nice day."
+		data := requestPost{postComment}
 		// set payload
 		payload, err := json.Marshal(data)
 		if err != nil {
@@ -60,6 +59,7 @@ func TestRequests(t *testing.T) {
 		if w.Code != http.StatusOK {
 			t.Errorf("expected '%d' but got '%d'", http.StatusOK, w.Code)
 		}
+		// ここ本当はresponse bodyの中身チェックしたいけど、すぐできないから一旦諦め
 
 		// set invalid query param
 		postInvalidQueryReq, _ := http.NewRequest(http.MethodPost, "/post", bytes.NewBuffer([]byte(payload)))
