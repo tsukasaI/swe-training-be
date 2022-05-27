@@ -41,5 +41,9 @@ func PostPost(c *gin.Context) {
 		return
 	}
 
+	// todo postの保存
+	// todo postの取り出し
+	// todo responseの取得
+
 	c.JSON(http.StatusOK, gin.H{})
 }
