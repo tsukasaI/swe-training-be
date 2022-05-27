@@ -113,5 +113,18 @@ func TestRequests(t *testing.T) {
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("expected '%d' but got '%d'", http.StatusBadRequest, w.Code)
 		}
+
+		// with not exist userId
+		NotExistUserReq, _ := http.NewRequest(http.MethodPost, "/post", bytes.NewBuffer([]byte(payload)))
+		w = httptest.NewRecorder()
+		q = NotExistUserReq.URL.Query()
+		q.Del("userId")
+		q.Add("userId", "1000000")
+		NotExistUserReq.URL.RawQuery = q.Encode()
+
+		router.ServeHTTP(w, NotExistUserReq)
+		if w.Code != http.StatusNotFound {
+			t.Errorf("expected '%d' but got '%d'", http.StatusNotFound, w.Code)
+		}
 	})
 }
