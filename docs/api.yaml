@@ -283,6 +283,34 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      data:
+                        $ref: "#/components/schemas/Post"
+              examples:
+                example-1:
+                  value:
+                    result:
+                      code: string
+                      data:
+                        id: 0
+                        comment: おはようございます。
+                        updatedAt: 2022/05/09/13/22/32
+                        createdAt: 2022/05/09/13/22/32
+                        writer:
+                          id: 0
+                          name: 田中一郎
+                          email: aaa@bbb.com
+                          updatedAt: 2022/05/09/13/22/32
+                          createdAt: 2022/05/09/13/22/32
         "400":
           description: Too Long Comment
       description: Create New Post.
@@ -296,14 +324,18 @@ paths:
                   type: string
                   maxLength: 200
                   example: 投稿致しました。
-                userId:
-                  type: integer
-                  format: int64
               required:
                 - comment
-                - userId
       tags:
         - post
+      parameters:
+        - schema:
+            type: integer
+            format: int64
+          in: query
+          name: userId
+          description: user id
+          required: true
   "/post/{postId}":
     parameters:
       - schema:
@@ -358,25 +390,64 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                maxItems: 20
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  result:
+                    type: object
+                    required:
+                      - code
+                      - data
+                    properties:
+                      code:
+                        type: string
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Post"
+                required:
+                  - result
               examples:
                 example-1:
                   value:
-                    - id: 0
-                      comment: おはようございます。
-                      updatedAt: 2022/05/09/13/22/32
-                      createdAT: 2022/05/09/13/22/32
-                      writer:
-                        id: 0
-                        name: 田中一郎
-                        email: aaa@bbb.com
-                        updatedAt: 2022/05/09/13/22/32
-                        createdAt: 2022/05/09/13/22/32
+                    result:
+                      code: ok
+                      data:
+                        - - id: 0
+                            comment: おはようございます。
+                            updatedAt: 2022/05/09/13/22/32
+                            createdAt: 2022/05/09/13/22/32
+                            writer:
+                              id: 0
+                              name: 田中一郎
+                              email: aaa@bbb.com
+                              updatedAt: 2022/05/09/13/22/32
+                              createdAt: 2022/05/09/13/22/32
+                              posts:
+                                - id: 0
+                                  comment: おはようございます。
+                                  updatedAt: 2022/05/09/13/22/32
+                                  createdAT: 2022/05/09/13/22/32
+                                  writer: {}
         "404":
           description: User Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+              examples:
+                example-1:
+                  value:
+                    error:
+                      code: NotFoundUser
+                      message: 存在しないユーザーです。
       operationId: get-post-home
       description: Get posts for home.
       parameters:
