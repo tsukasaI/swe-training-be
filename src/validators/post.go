@@ -10,7 +10,7 @@ type BodyParamComment struct {
 }
 
 func ValidatePostComment(payload BodyParamComment) error {
-	if utf8.RuneCountInString(payload.Comment) > 100 {
+	if utf8.RuneCountInString(payload.Comment) > 200 {
 		return errors.New("文字数が超過しています。")
 	}
 	return nil

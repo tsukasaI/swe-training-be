@@ -35,13 +35,6 @@ func PostPost(c *gin.Context) {
 		return
 	}
 
-	if err := validators.ValidatePostComment(payload); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": resources.CreateResponseBody("InvalidField", map[string]string{"message": "入力に誤りがあります。"}),
-		})
-		return
-	}
-
 	userId := c.Query("userId")
 
 	db, err := database.ConnectDb()
