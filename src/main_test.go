@@ -92,5 +92,26 @@ func TestRequests(t *testing.T) {
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("expected '%d' but got '%d'", http.StatusBadRequest, w.Code)
 		}
+
+		// with over length payload
+		var invalidOverLengthCommentRequestPost = requestPost{
+			"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		}
+		invalidOverLengthCommentPayload, err := json.Marshal(invalidOverLengthCommentRequestPost)
+		if err != nil {
+			t.Error("Error occurreded when invalid payload preparation")
+		}
+
+		postInvalidOverLengthCommentPayloadReq, _ := http.NewRequest(http.MethodPost, "/post", bytes.NewBuffer([]byte(invalidOverLengthCommentPayload)))
+		w = httptest.NewRecorder()
+		q = postInvalidOverLengthCommentPayloadReq.URL.Query()
+		q.Del("userId")
+		q.Add("userId", "1")
+		postInvalidOverLengthCommentPayloadReq.URL.RawQuery = q.Encode()
+
+		router.ServeHTTP(w, postInvalidOverLengthCommentPayloadReq)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected '%d' but got '%d'", http.StatusBadRequest, w.Code)
+		}
 	})
 }
